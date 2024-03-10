@@ -3,28 +3,52 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     [SerializeField] private float _moveSpeed = 7f;
-    private float _rotateSpeed = 10f;
+    [SerializeField] private GameInput gameInput;
+    public bool IsWalking {get; private set;}
+    private float _rotateSpeed = 10f, _playerRadius = 0.7f, _playerHeight = 2, moveDistance;
+    private bool canMove = true;
+    private Vector2 inputVector;
+    private Vector3 moveDirection, moveDirX, moveDirZ;
 
-    private void Update()
+    private void FixedUpdate()
     {
-        Vector2 inputVector = new Vector2();
-        inputVector = inputVector.normalized;
+        inputVector = gameInput.GetMovementVectorNormalized();
+        moveDirection = new Vector3(inputVector.x, 0, inputVector.y);
+        moveDirX = new Vector3(moveDirection.x, 0, 0);
+        moveDirZ = new Vector3(0, 0, moveDirection.z);
+        moveDistance = _moveSpeed * Time.fixedDeltaTime;
 
-        if(Input.GetKey(KeyCode.W))
-            inputVector.y = +1;
+        canMove = IsCanMove(moveDirection);
 
-        if(Input.GetKey(KeyCode.S))
-            inputVector.y = -1;
+        if(!canMove)
+        {
+            canMove = IsCanMove(moveDirX);
 
-        if(Input.GetKey(KeyCode.D))
-            inputVector.x = +1;
+            if(canMove)
+                moveDirection = moveDirX;
+            else
+            {
+                canMove = IsCanMove(moveDirZ);
 
-        if(Input.GetKey(KeyCode.A))
-            inputVector.x = -1;
+                if(canMove)
+                    moveDirection = moveDirZ;
+            }
+        }
+        
+        if (canMove)
+        {
+            transform.position += moveDirection * moveDistance;
+        }
 
-        Vector3 moveDirection = new Vector3(inputVector.x, 0, inputVector.y);
-        transform.position += moveDirection * _moveSpeed * Time.deltaTime;
+        IsWalking = moveDirection != Vector3.zero;
 
-        transform.forward = Vector3.Slerp(transform.forward, moveDirection, _rotateSpeed * Time.deltaTime);
+        transform.forward = Vector3.Slerp(transform.forward, moveDirection, _rotateSpeed * Time.fixedDeltaTime);
+    }
+
+    private bool IsCanMove(Vector3 moveDirection)
+    {
+        bool canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * _playerHeight, _playerRadius, moveDirection, moveDistance);
+
+        return canMove;
     }
 }
