@@ -3,25 +3,23 @@ using UnityEngine;
 
 public class Player : MonoBehaviour, IKitchenObjectParent
 {
-    public static Player Instance { get; private set; }
-
-    public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
-    public class OnSelectedCounterChangedEventArgs : EventArgs
-    {
-        public ClearCounter selectedCounter;
-    }
-
     [SerializeField] private float _moveSpeed = 7f;
     [SerializeField] private GameInput _gameInput;
     [SerializeField] private Transform _kitchenObjectPosition;
     [SerializeField] private LayerMask _countersLayerMask;
-    private ClearCounter _selectedCounter;
+    private Counter _selectedCounter;
     private KitchenObject _kitchenObject;
     private float _rotateSpeed = 10f, _playerRadius = 0.7f, _playerHeight = 2, _interactDistance = 2f, _moveDistance;
     private bool _canMove = true;
     private Vector2 _inputVector;
     private Vector3 _moveDirection, _moveDirX, _moveDirZ;
     public bool IsWalking { get; private set; }
+    public static Player Instance { get; private set; }
+    public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
+    public class OnSelectedCounterChangedEventArgs : EventArgs
+    {
+        public Counter selectedCounter;
+    }
 
     private void Awake()
     {
@@ -34,7 +32,9 @@ public class Player : MonoBehaviour, IKitchenObjectParent
     private void Start()
     {
         _gameInput.OnInteractAction += GameInput_OnInteractAction; //"Подписка на ивент из GameInput"
+        _gameInput.OnInteractAlternateAction += GameInput_OnInteractAlternateAction;
     }
+
 
     private void FixedUpdate()
     {
@@ -51,6 +51,12 @@ public class Player : MonoBehaviour, IKitchenObjectParent
         if (_selectedCounter != null)
             _selectedCounter.Interact(this);
     }
+    
+    private void GameInput_OnInteractAlternateAction(object sender, EventArgs eventArgs)
+    {
+        if (_selectedCounter != null)
+            _selectedCounter.InteractAlternate(this);
+    }
 
     private void HandleInteractions()
     {
@@ -58,12 +64,12 @@ public class Player : MonoBehaviour, IKitchenObjectParent
         
         if (Physics.Raycast(transform.position + originOffSet, transform.forward, out RaycastHit raycastHit, _interactDistance, _countersLayerMask))
         {
-            if (raycastHit.transform.TryGetComponent(out ClearCounter clearCounter))
+            if (raycastHit.transform.TryGetComponent(out Counter counter))
             {
-                if (clearCounter != _selectedCounter)
+                if (counter != _selectedCounter)
                 {
-                    _selectedCounter = clearCounter;
-                    SetSelectedCounter(clearCounter);
+                    //_selectedCounter = counter;
+                    SetSelectedCounter(counter);
                 }
             }
             else
@@ -85,13 +91,13 @@ public class Player : MonoBehaviour, IKitchenObjectParent
 
         if (!_canMove)
         {
-            _canMove = IsCanMove(_moveDirX);
+            _canMove = _moveDirection.x != 0 && IsCanMove(_moveDirX);
 
             if (_canMove)
                 _moveDirection = _moveDirX;
             else
             {
-                _canMove = IsCanMove(_moveDirZ);
+                _canMove = _moveDirection.z != 0 && IsCanMove(_moveDirZ);
 
                 if (_canMove)
                     _moveDirection = _moveDirZ;
@@ -115,7 +121,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent
         return canMove;
     }
 
-    private void SetSelectedCounter(ClearCounter selectedCounter)
+    private void SetSelectedCounter(Counter selectedCounter)
     {
         this._selectedCounter = selectedCounter;
 
