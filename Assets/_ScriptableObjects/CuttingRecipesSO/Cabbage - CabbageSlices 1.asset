@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 100c3452c7bcde949951239ea91bf227, type: 3}
-  m_Name: Cheese - CheeseSlices 2
+  m_Name: Cabbage - CabbageSlices 1
   m_EditorClassIdentifier: 
-  Input: {fileID: 11400000, guid: a095290a4d8a1e8438628ea5ec05f2a1, type: 2}
-  Output: {fileID: 11400000, guid: e8b6bf616a5347344a53c24dd99ee448, type: 2}
-  _cuttingProgressMax: 3
+  Input: {fileID: 11400000, guid: 17f4b27cd2b8772449cbb730ea1948ae, type: 2}
+  Output: {fileID: 11400000, guid: 10e58a43f501fde429290d6cd2be2e34, type: 2}
+  CuttingProgressMax: 5
