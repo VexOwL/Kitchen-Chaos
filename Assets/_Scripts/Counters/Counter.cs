@@ -1,9 +1,11 @@
+using System;
 using UnityEngine;
 
 public class Counter : MonoBehaviour, IKitchenObjectParent
 {
     [SerializeField] private Transform _kitchenObjectPosition;
     private KitchenObject _kitchenObject;
+    public static event EventHandler OnAnyPlacedObject;
 
     public virtual void Interact(Player player)
     {
@@ -19,10 +21,7 @@ public class Counter : MonoBehaviour, IKitchenObjectParent
         }
     }
 
-    public virtual void InteractAlternate(Player player)
-    {
-        
-    }
+    public virtual void InteractAlternate(Player player){}
 
     public Transform GetKitchenObjectFollowTransform()
     {
@@ -32,6 +31,9 @@ public class Counter : MonoBehaviour, IKitchenObjectParent
     public void SetKitchenObject(KitchenObject kitchenObject)
     {
         _kitchenObject = kitchenObject;
+
+        if(kitchenObject != null)
+            OnAnyPlacedObject?.Invoke(this, EventArgs.Empty);
     }
 
     public KitchenObject GetKitchenObject()

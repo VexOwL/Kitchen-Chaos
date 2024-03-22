@@ -9,9 +9,11 @@ public class DeliveryManager : MonoBehaviour
     public static DeliveryManager Instance;
     private List<SO_Recipe> _waitingRecipes = new List<SO_Recipe>();
     private float _spawnRecipeTimer, _spawnRecipeTimerMax = 5;
-    private int _maxRecipes = 5;
+    private int _maxRecipes = 3;
     public event EventHandler OnRecipeSpawned;
     public event EventHandler OnRecipeCompleted;
+    public event EventHandler OnDeliverySuccess;
+    public event EventHandler OnDeliveryFailed;
 
     private void Awake()
     {
@@ -67,12 +69,13 @@ public class DeliveryManager : MonoBehaviour
                     _waitingRecipes.RemoveAt(i);
 
                     OnRecipeCompleted?.Invoke(this, EventArgs.Empty);
+                    OnDeliverySuccess?.Invoke(this, EventArgs.Empty);
                     return;
                 }
             }
         }
 
-        Debug.Log("Player delivered a wrong plate!");
+        OnDeliveryFailed?.Invoke(this, EventArgs.Empty);
     }
 
     public List<SO_Recipe> GetWaitingRecipes()
