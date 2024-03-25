@@ -9,7 +9,7 @@ public class DeliveryManager : MonoBehaviour
     public static DeliveryManager Instance;
     private List<SO_Recipe> _waitingRecipes = new List<SO_Recipe>();
     private float _spawnRecipeTimer, _spawnRecipeTimerMax = 5;
-    private int _maxRecipes = 3;
+    private int _maxRecipes = 3, _successfulDeliveriesAmount;
     public event EventHandler OnRecipeSpawned;
     public event EventHandler OnRecipeCompleted;
     public event EventHandler OnDeliverySuccess;
@@ -68,6 +68,7 @@ public class DeliveryManager : MonoBehaviour
                 {
                     _waitingRecipes.RemoveAt(i);
 
+                    _successfulDeliveriesAmount++;
                     OnRecipeCompleted?.Invoke(this, EventArgs.Empty);
                     OnDeliverySuccess?.Invoke(this, EventArgs.Empty);
                     return;
@@ -81,5 +82,10 @@ public class DeliveryManager : MonoBehaviour
     public List<SO_Recipe> GetWaitingRecipes()
     {
         return _waitingRecipes;
+    }
+
+    public int GetSuccesfulDeliveriesAmount()
+    {
+        return _successfulDeliveriesAmount;
     }
 }
