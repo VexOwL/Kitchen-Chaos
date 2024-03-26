@@ -4,13 +4,16 @@ using Random = UnityEngine.Random;
 
 public class SoundManager : MonoBehaviour
 {
-    public static SoundManager Instance;
-
     [SerializeField] private SO_AudioClipsRefs _audioClipsRefs;
+    public static SoundManager Instance;
+    private float _volume = 0.5f;
+    private const string PLAYERPREFS_SOUND_VOLUME = "SoundSfxVolume";
 
     private void Awake()
     {
         Instance = this;
+
+        _volume = PlayerPrefs.GetFloat(PLAYERPREFS_SOUND_VOLUME);
     }
 
     private void Start()
@@ -23,15 +26,30 @@ public class SoundManager : MonoBehaviour
         TrashCounter.OnAnyObjectTrashed += TrashCounter_OnObjectTrashed;
     }
     
-    private void PlaySound(AudioClip sound, Vector3 position, float volume = 0.5f)
+    public void ChangeVolume()
     {
-        AudioSource.PlayClipAtPoint(sound, position, volume);
+        _volume += 0.1f;
+
+        if(_volume > 1)
+            _volume = 0;
+
+        PlayerPrefs.SetFloat(PLAYERPREFS_SOUND_VOLUME, _volume);
+        PlayerPrefs.Save();
+    }
+    
+    private void PlaySound(AudioClip sound, Vector3 position, float volumeMultiplier = 0.5f)
+    {
+        AudioSource.PlayClipAtPoint(sound, position, volumeMultiplier);
     }
 
     private void PlaySound(AudioClip[] soundArray, Vector3 position, float volume = 0.5f)
     {
-
         PlaySound(soundArray[Random.Range(0, soundArray.Length)], position, volume);
+    }
+
+    public float GetVolume()
+    {
+        return _volume;
     }
 
     public void PlayFootstepSound(Vector3 position, float volume = 0.5f)
@@ -74,5 +92,4 @@ public class SoundManager : MonoBehaviour
         DeliveryCounter deliveryCounter = DeliveryCounter.Instance;
         PlaySound(_audioClipsRefs.DeliveryFailed, deliveryCounter.transform.position);
     }
-
 }

@@ -7,6 +7,11 @@ public class Counter : MonoBehaviour, IKitchenObjectParent
     private KitchenObject _kitchenObject;
     public static event EventHandler OnAnyPlacedObject;
 
+    public static void ResetStaticData()
+    {
+        OnAnyPlacedObject = null;
+    }
+
     public virtual void Interact(Player player)
     {
         if (!HasKitchenObject())
