@@ -5,7 +5,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
     private State _state;
-    private float _waitingToStartTimer = 1, _coutdownTimer = 3, _gameTimer, _gameTimerMax = 10;
+    private float _coutdownTimer = 3, _gameTimer, _gameTimerMax = 60;
     private bool _isGamePaused = false;
     public event EventHandler OnStateChanged;
     public event EventHandler OnGamePaused;
@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         GameInput.Instance.OnPauseAction += GameInput_OnPauseAction;
+        GameInput.Instance.OnInteractAction += GameInput_OnInteractAction;
     }
 
     private void GameInput_OnPauseAction(object sender, EventArgs e)
@@ -29,19 +30,20 @@ public class GameManager : MonoBehaviour
         TogglePauseGame();
     }
 
+    private void GameInput_OnInteractAction(object sender, EventArgs e)
+    {
+        if(_state == State.WaitingToStart)
+        {
+            _state = State.CountdownToStart;
+            OnStateChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
     private void Update()
     {
         switch (_state)
         {
             case State.WaitingToStart:
-                _waitingToStartTimer -= Time.deltaTime;
-
-                if (_waitingToStartTimer <= 0)
-                {
-                    _state = State.CountdownToStart;
-                    OnStateChanged?.Invoke(this, EventArgs.Empty);
-                }
-
                 break;
 
             case State.CountdownToStart:

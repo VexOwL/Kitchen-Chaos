@@ -17,7 +17,7 @@ public class PlatesCounter : Counter
         {
             _plateSpawnTimer = 0;
 
-            if (_platesAmount < _platesAmountMax)
+            if (GameManager.Instance.IsGamePlaying() && _platesAmount < _platesAmountMax)
             {
                 _platesAmount++;
 
